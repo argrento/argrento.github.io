@@ -75,6 +75,7 @@
     padding: map-get($spacers, 1) map-get($spacers, 2);
     background-color: $text-background-color;
     border-radius: map-get($base, border-radius);
+    font-size: map-get($base, font-size-code);
     span {
       padding: 0;
       margin: 0;
