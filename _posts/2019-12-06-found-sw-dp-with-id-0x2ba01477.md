@@ -135,4 +135,117 @@ argz:blinky|master⚡ ⇒  nrfjprog --recover
 
 `segfault at fffffffffffffff9 ip 00007fbf86dff8a3 sp 00007ffdddc75830 error 5 in libjlinkarm_unknown_nrfjprogdll.so[7fbf86dda000+194000]`
 
-### Причины на SWD
+### Причины этих неприятностей
+
+Сложившаяся ситуация -- это результат моих ошибок в проектировании печатной платы и
+выборе платформы для компиляции проекта. Разбор полётов я сделаю с конца списка.
+
+#### segfault
+
+![]({{page.image_path}}/02-sch.png)
+
+Это результат аппаратной проблемы. На картинке вверху часть моей схемы, содержащая цепь сброса.
+После того, как я отпаял конденатор C16, `nrfjprog` падать перестал. 
+
+#### Cannot connect to target
+
+Эта проблема появилась в результате неправильного выбра платформы (nrf52832_mdk).
+
+![]({{page.image_path}}/01-reset.png)
+
+На картинке сверху состояние ноги RESET (P0.21), которая подключена к NRST разъёма программирования. Именно из-за этого контроллер не прошивается с помощью `west flash`.
+
+Для лечения используется утилита JLinkExe.
+
+~~~
+argz:blinky|master⚡ ⇒  JLinkExe
+SEGGER J-Link Commander V6.54c (Compiled Nov  7 2019 17:05:53)
+DLL version V6.54c, compiled Nov  7 2019 17:05:41
+
+Connecting to J-Link via USB...O.K.
+Firmware: J-Link V9 compiled Jun  2 2222 22:22:22
+Hardware version: V9.40
+S/N: 59401308
+License(s): GDB, RDI, FlashBP, FlashDL, JFlash, RDDI
+VTref=3.282V
+
+
+Type "connect" to establish a target connection, '?' for help
+J-Link>connect
+Please specify device / core. <Default>: NRF52832_XXAA
+Type '?' for selection dialog
+Device>NRF52832_XXAA
+Please specify target interface:
+  J) JTAG (Default)
+  S) SWD
+  T) cJTAG
+TIF>S
+Specify target interface speed [kHz]. <Default>: 4000 kHz
+Speed>4000
+Device "NRF52832_XXAA" selected.
+
+
+Connecting to target via SWD
+InitTarget() start
+InitTarget() end
+Found SW-DP with ID 0x2BA01477
+Scanning AP map to find all available APs
+AP[0]: Stopped AP scan as end of AP map has been reached
+Iterating through AP map to find AHB-AP to use
+InitTarget() start
+InitTarget() end
+Found SW-DP with ID 0x2BA01477
+Scanning AP map to find all available APs
+AP[2]: Stopped AP scan as end of AP map has been reached
+AP[0]: AHB-AP (IDR: 0x24770011)
+AP[1]: JTAG-AP (IDR: 0x02880000)
+Iterating through AP map to find AHB-AP to use
+AP[0]: Core found
+AP[0]: AHB-AP ROM base: 0xE00FF000
+CPUID register: 0x410FC241. Implementer code: 0x41 (ARM)
+Found Cortex-M4 r0p1, Little endian.
+FPUnit: 6 code (BP) slots and 2 literal slots
+CoreSight components:
+ROMTbl[0] @ E00FF000
+ROMTbl[0][0]: E000E000, CID: B105E00D, PID: 000BB00C SCS-M7
+ROMTbl[0][1]: E0001000, CID: B105E00D, PID: 003BB002 DWT
+ROMTbl[0][2]: E0002000, CID: B105E00D, PID: 002BB003 FPB
+ROMTbl[0][3]: E0000000, CID: B105E00D, PID: 003BB001 ITM
+ROMTbl[0][4]: E0040000, CID: B105900D, PID: 000BB9A1 TPIU
+ROMTbl[0][5]: E0041000, CID: B105900D, PID: 000BB925 ETM
+
+****** Error: Could not find core in Coresight setup
+J-Link>erase
+Target connection not established yet but required for command.
+Device "NRF52832_XXAA" selected.
+
+
+Connecting to target via SWD
+InitTarget() start
+InitTarget() end
+Found SW-DP with ID 0x2BA01477
+AP map detection skipped. Manually configured AP map found.
+AP[0]: AHB-AP (IDR: Not set)
+AP[0]: Core found
+AP[0]: AHB-AP ROM base: 0xE00FF000
+CPUID register: 0x410FC241. Implementer code: 0x41 (ARM)
+Found Cortex-M4 r0p1, Little endian.
+FPUnit: 6 code (BP) slots and 2 literal slots
+CoreSight components:
+ROMTbl[0] @ E00FF000
+ROMTbl[0][0]: E000E000, CID: B105E00D, PID: 000BB00C SCS-M7
+ROMTbl[0][1]: E0001000, CID: B105E00D, PID: 003BB002 DWT
+ROMTbl[0][2]: E0002000, CID: B105E00D, PID: 002BB003 FPB
+ROMTbl[0][3]: E0000000, CID: B105E00D, PID: 003BB001 ITM
+ROMTbl[0][4]: E0040000, CID: B105900D, PID: 000BB9A1 TPIU
+ROMTbl[0][5]: E0041000, CID: B105900D, PID: 000BB925 ETM
+Cortex-M4 identified.
+Erasing device...
+Comparing flash   [100%] Done.
+Erasing flash     [100%] Done.
+J-Link: Flash download: Total time needed: 0.026s (Prepare: 0.015s, Compare: 0.000s, Erase: 0.007s, Program: 0.000s, Verify: 0.000s, Restore: 0.003s)
+Erasing done.
+J-Link>q
+~~~
+
+После запуска `JLinkExe` надо ввести команду `connect`, затем указать устройство (чаще всего оно определится автоматически) `NRF52832_XXAA`, интерфейс подключения `SWD`, частота `4000 kHz`. После подключения достаточно ввести всего 1 команду: `erase`. Вся прошивка будет стёрта, работоспособность восстановится.
