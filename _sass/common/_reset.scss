@@ -143,10 +143,12 @@ code {
 
 figure > img {
   display: block;
+  margin: 0 auto;
 }
 
 figcaption {
   font-size: map-get($base, font-size-sm);
+  text-align: center;
 }
 
 button {
