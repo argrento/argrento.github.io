@@ -6,7 +6,7 @@ tags: altium designer old
 image_path: /assets/images/2011-12-28-altium-designer-autoroute
 ---
 
-Статья из моего старого блога: [https://kirik444.wordpress.com/2011/12/28/altium-designer-autoroute-various-thikness/](https://kirik444.wordpress.com/2011/12/28/altium-designer-autoroute-various-thikness/)
+Статья из моего старого блога: [https://kirik444.wordpress.com/2011/12/28/altium-designer-autoroute-various-thikness/](https://kirik444.wordpress.com/2011/12/28/altium-designer-autoroute-various-thikness/){:.info}
 
 И снова здравствуйте. Сегодня я расскажу о том, как заставить Altium авторутить дорожки разной толщины.
 
