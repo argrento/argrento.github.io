@@ -6,6 +6,8 @@ tags: altium manual old
 image_path: /assets/images/2012-05-28-start-with-altium-designer-part1
 ---
 
+Статья из моего старого блога: [https://kirik444.wordpress.com/2012/05/28/start-with-altium-designer-part1/](https://kirik444.wordpress.com/2012/05/28/start-with-altium-designer-part1/){:.info}
+
 ![]({{page.image_path}}/00-logo.jpg){:.rounded}
 
 
