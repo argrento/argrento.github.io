@@ -1,5 +1,5 @@
 ---
-layout: article
+# layout: article
 title: Altium. Первые шаги
 modify_date: 2012-05-28
 tags: altium manual old
